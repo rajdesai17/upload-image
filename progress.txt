@@ -1,0 +1,40 @@
+# Project Status Summary: SSO Image Upload
+
+## What We Have Done
+
+- Set up a React frontend for users to select and upload profile images.
+- Built a Node.js backend (Express) with an `/upload-profile-image` endpoint.
+- The frontend sends the selected image and an access token to the backend.
+- The backend currently simulates an upload: it accepts the file, waits briefly, deletes the file, and returns a mock success message.
+- No real SSO API integration is active yet; all uploads are local and responses are fake.
+
+## How It Works Now
+
+1. User selects an image in the React app.
+2. The app sends the image (with a token) to the backend.
+3. The backend pretends to upload, deletes the file, and returns a dummy response.
+4. The frontend displays the (mock) result.
+
+## What To Do Next (To Make It Work With Real SSO)
+
+1. **Backend:**
+   - Update `/upload-profile-image` to forward the uploaded file and Authorization token to the real SSO API:
+     - Endpoint: `PATCH https://devauth.formidium.com/api/v1/user/uploadProfileImage`
+     - Headers: `Authorization: Bearer <token>`
+     - Body: `multipart/form-data` with the file
+   - Handle SSO API responses and errors.
+   - Clean up local files after forwarding.
+
+2. **Frontend:**
+   - No major changes needed if backend endpoint stays the same.
+   - Ensure the access token is valid and sent in the request.
+
+3. **Testing:**
+   - Start both servers.
+   - Upload an image and confirm the SSO API returns a real file path.
+   - Handle and display any errors (e.g., invalid/expired token).
+
+## References
+
+- See `overview.txt` for full setup and code samples.
+- SSO API docs: `/api/v1/user/uploadProfileImage` (PATCH, multipart/form-data, Authorization required).

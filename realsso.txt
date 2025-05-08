@@ -1,0 +1,150 @@
+POST
+/api/v1/refreshAccessToken
+Generate new access token using refresh token
+
+Validates the provided refresh token and, if valid, generates a new access token along with its expiry time. The refresh token must be supplied in the request body. On success, a new access token and its expiry time are returned.
+
+Parameters
+Cancel
+No parameters
+
+Request body
+
+application/json
+{
+  "refreshToken": "refresh-token"
+}
+Execute
+Clear
+Responses
+Curl
+
+curl -X 'POST' \
+  'https://devauth.formidium.com/api/v1/refreshAccessToken' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "refreshToken": "refresh-token"
+}'
+Request URL
+https://devauth.formidium.com/api/v1/refreshAccessToken
+Server response
+Code	Details
+500	
+Error: response status is 500
+
+Response body
+Download
+{
+  "status": "error",
+  "message": "Invalid or expired refresh token"
+}
+Response headers
+ access-control-allow-headers: Content-Type,Authorization 
+ access-control-allow-methods: GET,POST,PUT,DELETE,OPTIONS 
+ access-control-allow-origin: * 
+ content-type: application/json 
+ date: Thu,08 May 2025 07:03:16 GMT 
+ vary: RSC,Next-Router-State-Tree,Next-Router-Prefetch,Next-Router-Segment-Prefetch 
+Responses
+Code	Description	Links
+200	
+New access token generated successfully.
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "status": "success",
+  "message": "New access token generated successfully.",
+  "data": {
+    "accessToken": "new-access-token",
+    "expiresIn": 3600,
+    "refreshToken": "new-refresh-token",
+    "data": {
+      "userId": 123,
+      "role": "admin"
+    }
+  }
+}
+No links
+400	
+Missing or invalid refresh token.
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "status": "error",
+  "message": "refreshToken is required or Invalid refresh token."
+}
+No links
+500	
+Internal server error.
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "status": "error",
+  "message": "Internal server error."
+}
+
+
+
+PATCH
+/api/v1/user/uploadProfileImage
+Upload a profile image for a user
+
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+multipart/form-data
+file
+string($binary)
+Responses
+Code	Description	Links
+200	
+Profile image uploaded successfully
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+{
+  "filePath": "string"
+}
+No links
+400	
+Bad request
+
+No links
+404	
+User not found
+
+No links
+500	
+Internal server error.
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "message": "string",
+  "success": "string"
+}

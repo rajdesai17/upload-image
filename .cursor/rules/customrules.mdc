@@ -1,0 +1,59 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+## General Principles
+- Always write clean, functional, and modular code.
+- Use the latest stable versions of Node.js and React.js.
+- Follow best practices for security, error handling, and user experience.
+- All commands and scripts should be compatible with Windows PowerShell.
+- Document any assumptions or required environment variables.
+
+## Step-by-Step Rules
+1. **Project Initialization**
+   - Set up separate directories for backend (Node.js) and frontend (React.js).
+   - Initialize each project with the appropriate package manager (`npm` for Node.js, `npx create-react-app` for React).
+
+2. **Backend Setup (Node.js)**
+   - Install required dependencies: `express`, `axios`, `form-data`, `multer`, `cors`.
+   - Set up an Express server with a `/upload-profile-image` endpoint.
+   - Use `multer` for handling file uploads and `form-data` for forwarding files.
+   - Implement error handling for file upload, API errors, and file cleanup.
+   - Ensure CORS is enabled for local development.
+   - Securely handle and forward the Authorization token.
+
+3. **Frontend Setup (React.js)**
+   - Create a functional component for image upload.
+   - Use `axios` for HTTP requests.
+   - Implement file input and upload logic.
+   - Display clear status messages for success and error states.
+   - Handle and validate file type and size before upload.
+   - Store and retrieve the access token securely (e.g., from localStorage).
+
+4. **Integration & Testing**
+   - Start both backend and frontend servers.
+   - Test the full upload flow: select image, upload, receive response, and display result.
+   - Check browser console and backend logs for errors.
+   - Confirm that the uploaded file path is returned and displayed.
+
+5. **Edge Cases & Improvements**
+   - Handle expired/invalid tokens (401 errors).
+   - Validate file type and size on both frontend and backend.
+   - Clean up temporary files after upload.
+   - Add user feedback for all error scenarios.
+
+6. **Documentation & Maintenance**
+   - Comment code where necessary.
+   - Provide clear instructions for running both backend and frontend.
+   - Reference official documentation for any advanced features or troubleshooting.
+
+## Official Documentation
+- **Node.js:** https://nodejs.org/en/docs
+- **Express:** https://expressjs.com/en/starter/installing.html
+- **Multer:** https://github.com/expressjs/multer
+- **Axios:** https://axios-http.com/docs/intro
+- **React.js:** https://react.dev/learn
+
+- **React (Create React App):** https://create-react-app.dev/docs/getting-started/

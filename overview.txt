@@ -1,0 +1,221 @@
+# Image Upload Script using React + Node.js
+
+**Purpose:** Upload a user's profile image to the SSO server using the `/api/v1/user/uploadProfileImage` endpoint.
+
+---
+
+## Tech Stack
+
+- **Frontend:** React (with Axios)
+- **Backend:** Node.js (with Express, Axios, FormData)
+- **Auth:** Bearer Token (JWT)
+- **API Reference:**
+    - **Endpoint:** `PATCH /api/v1/user/uploadProfileImage`
+    - **Headers:** `Authorization: Bearer <token>`
+    - **Body:** `multipart/form-data` with a `file` field
+
+---
+
+## Overall Flow
+
+1. User logs in → receives an access token
+2. User selects an image in the React frontend
+3. React sends the image + token to a minimal Node.js server
+4. Node.js server forwards the image to the SSO API
+5. SSO responds with the uploaded file path
+6. Display success or error message
+
+---
+
+## 1. Backend – Minimal Node.js Proxy for Upload
+
+### Step 1.1: Setup
+
+```bash
+mkdir sso-upload-backend && cd sso-upload-backend
+npm init -y
+npm install express axios form-data multer cors
+
+```
+
+---
+
+### Step 1.2: Create `server.js`
+
+```
+const express = require('express');
+const multer = require('multer');
+const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
+
+const app = express();
+const upload = multer({ dest: 'uploads/' });
+
+app.use(require('cors')());
+app.use(express.json());
+
+app.patch('/upload-profile-image', upload.single('file'), async (req, res) => {
+  const accessToken = req.headers['authorization']; // 'Bearer <token>'
+  const filePath = req.file.path;
+
+  const form = new FormData();
+  form.append('file', fs.createReadStream(filePath));
+
+  try {
+    const response = await axios.patch(
+      'https://<SSO_DOMAIN>/api/v1/user/uploadProfileImage',
+      form,
+      {
+        headers: {
+          ...form.getHeaders(),
+          Authorization: accessToken,
+        },
+      }
+    );
+
+    // cleanup local file
+    fs.unlinkSync(filePath);
+
+    res.json(response.data);
+  } catch (err) {
+    fs.unlinkSync(filePath);
+    res.status(500).json(err.response?.data || { error: 'Upload failed' });
+  }
+});
+
+app.listen(5000, () => console.log('Server running on http://localhost:5001'));
+
+```
+
+---
+
+## 2. Frontend – Minimal React UI
+
+### Step 2.1: Setup
+
+If not already:
+
+```bash
+npx create-react-app sso-upload-frontend
+cd sso-upload-frontend
+npm install axios
+
+```
+
+---
+
+### Step 2.2: Component – `ImageUploader.js`
+
+```jsx
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const ImageUploader = () => {
+  const [file, setFile] = useState(null);
+  const [status, setStatus] = useState('');
+  const accessToken = 'Bearer YOUR_ACCESS_TOKEN'; // Replace this dynamically
+
+  const handleChange = (e) => setFile(e.target.files[0]);
+
+  const handleUpload = async () => {
+    if (!file) return alert('Select an image');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.patch('http://localhost:5001/upload-profile-image', formData, {
+        headers: {
+          'Authorization': accessToken,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setStatus(`Uploaded: ${response.data.filePath}`);
+    } catch (err) {
+      setStatus('Upload failed');
+      console.error(err);
+    }
+  };
+
+  return (
+    <div>
+      <h2>Upload Profile Image</h2>
+      <input type="file" accept="image/*" onChange={handleChange} />
+      <button onClick={handleUpload}>Upload</button>
+      <p>{status}</p>
+    </div>
+  );
+};
+
+export default ImageUploader;
+
+```
+
+---
+
+### Step 2.3: Use it in `App.js`
+
+```jsx
+import React from 'react';
+import ImageUploader from './ImageUploader';
+
+function App() {
+  return (
+    <div>
+      <ImageUploader />
+    </div>
+  );
+}
+
+export default App;
+
+```
+
+---
+
+## Token Handling (For Now)
+
+- Replace `Bearer YOUR_ACCESS_TOKEN` in the frontend with a real token.
+- Ideally, store it securely (e.g., in `localStorage` after login) and read it dynamically.
+
+---
+
+## Testing Steps
+
+1. Start the backend:
+    
+    ```bash
+    node server.js
+    
+    ```
+    
+2. Start the frontend:
+    
+    ```bash
+    npm start
+    
+    ```
+    
+3. Upload a valid image file using the UI
+4. Check browser console or status message
+5. Confirm that the image was uploaded and the file path is returned
+
+---
+
+## Edge Case Handling
+
+- Backend cleans up the temp file after sending it to SSO
+- 401 → Handle expired/invalid tokens
+- 400/500 → Validate file before upload
+- Add size/type restrictions on frontend (optional)
+
+---
+
+## Summary
+
+| Layer | Responsibility |
+| --- | --- |
+| **React** | Capture file input, call backend API |
+| **Node.js** | Receive file, send to SSO using `FormData` |
+| **SSO API** | Handle secure upload & store image |
